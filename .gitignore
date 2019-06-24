@@ -1,0 +1,24 @@
+# code editor and cache files
+.vscode/
+__pycache__
+
+# django
+migrations/
+local_settings.py
+logfile
+
+# files
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media
+
+# enviroment items
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
