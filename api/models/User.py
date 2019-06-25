@@ -2,6 +2,7 @@ from django.db import models
 
 from .Project import Project
 
+
 class User (models.Model) :
 	first_name = models.CharField(max_length=50)
 	middle_name = models.CharField(max_length=50)
