@@ -6,7 +6,7 @@ class practical (models.Model):
     start_date = models.DateField()
     due_date = models.DateField()
     date_created = models.DateTimeField(auto_now_add=True)
-
+    
 
     def __str__(self) :
         return "Practical session information for {}".format(self.name)
