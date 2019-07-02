@@ -1,6 +1,7 @@
 # code editor and cache files
 .vscode/
 __pycache__
+vsSDI.code-workspace
 
 # django
 migrations/
