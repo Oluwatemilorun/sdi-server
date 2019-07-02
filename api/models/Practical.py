@@ -1,6 +1,6 @@
 from django.db import models
 
-class practical (models.Model):
+class Practical (models.Model):
     name = models.CharField(max_length = 150)
     decription = models.CharField(max_length = 150)
     start_date = models.DateField()
