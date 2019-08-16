@@ -9,19 +9,24 @@
 ## Build Setup
 ``` bash
 # install modules/dependencies
-$ pip install django psycopg2
+$ pip install requirements.txt
 
-# make migration
-$ python manage.py makemigration
+# make database migration
+python migrate.py db init
+python migrate.py db migrate
+python migrate.py db upgrade
 
-# run migration
-$ pyhton manage.py migrate
+# subsequent migration
+python migrate.py db migrate
+python migrate.py db upgrade
 
 # start / run server
-$ python manage.py runserver
+$ python run.py
 
 ```
 
 ## Read more
-- [Django](https://www.djangoproject.com/download/)
+- [Flask](https://flask-restful.readthedocs.io)
 - [Psycopg2](https://pypi.org/project/psycopg2/)
+- [SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com)
+- [PostGIS Integration](http://andrewgaidus.com/Build_Query_Spatial_Database)
