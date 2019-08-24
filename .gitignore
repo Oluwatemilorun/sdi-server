@@ -13,6 +13,8 @@ logfile
 *.pyc
 db.sqlite3
 media
+rough.py
+uploads/
 
 # enviroment items
 .env
