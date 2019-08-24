@@ -1,4 +1,4 @@
-# database model for all assignments
+'Database model for all assignments'
 
 # import psycopg2
 import datetime
@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy_utils import database_exists
 
 from .db import db
+from .User import UserSchema
 import config
 
 ma = Marshmallow()
@@ -23,7 +24,8 @@ class Assignment(db.Model):
 
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(150))
-	instruction = db.Column(db.String(220))
+	instruction = db.Column(db.String(1500))
+	course_code = db.Column(db.String(7))
 	level = db.Column(db.String(3), nullable=False) # the level the assignment is for
 	# key = db.Column(db.String(8))
 
@@ -52,6 +54,7 @@ class Assignment(db.Model):
 		self,
 		name,
 		instruction,
+		course_code,
 		level,
 		db_name,
 		db_username,
@@ -62,6 +65,7 @@ class Assignment(db.Model):
 	):
 		self.name = name.lower()
 		self.instruction = instruction
+		self.course_code = course_code
 		self.level = level
 		self.user_id = user_id
 		self.has_started = False
@@ -120,6 +124,7 @@ class Assignment(db.Model):
 					# return None
 				
 				self.db_name = db_name
+				conn.close()
 				return db_name
 
 		else:
@@ -131,7 +136,8 @@ class Assignment(db.Model):
 class AssignmentSchema(ma.Schema):
 	id = fields.Integer()
 	name = fields.String(required=True, validate=validate.Length(1))
-	instructions = fields.String(required=True, validate=validate.Length(1))
+	instruction = fields.String(required=True, validate=validate.Length(1))
+	course_code = fields.String(required=True, validate=validate.Length(6))
 	level = fields.String(validate=validate.Length(equal=3))
 
 	db_name = fields.String(dump_only=True)
@@ -140,3 +146,6 @@ class AssignmentSchema(ma.Schema):
 	date_start = fields.DateTime(dump_only=True)
 	date_end = fields.DateTime(dump_only=True)
 	created_at = fields.DateTime(dump_only=True)
+	has_started = fields.Boolean(dump_only=True)
+	has_ended = fields.Boolean(dump_only=True)
+	users = fields.Nested(UserSchema, only=['id', 'first_name', 'middle_name', 'last_name', 'registration_number'])
