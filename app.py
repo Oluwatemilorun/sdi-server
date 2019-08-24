@@ -13,7 +13,7 @@ bcrypt = Bcrypt(app)
 api_bp = Blueprint('api', __name__)
 
 # allow CORS for all domains on all routes
-CORS(app)
+CORS(api_bp, supports_credentials=True, origins=['http://localhost:3000'])
 
 # use flask_restful resource routing
 api = Api(api_bp)
