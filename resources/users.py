@@ -6,6 +6,7 @@ from flask_restful import Resource
 from models.db import db
 from models.User import User, UserSchema
 from models.Assignment import Assignment, AssignmentSchema
+from models.Submission import Submission
 
 from middlewares.auth import check_auth
 from middlewares.roles import validate_roles
@@ -303,7 +304,7 @@ class Login(Resource):
 		
 		try:
 			user = User.query.filter_by(
-				registration_number=req_data['registration_number'].replace('/', '_')
+				registration_number=req_data['registration_number'].replace('/', '_').lower()
 			).first()
 
 			# check if user exist
@@ -316,7 +317,7 @@ class Login(Resource):
 			# check if password is correct
 			if user.check_password(req_data['password']):
 				auth_token = user.encode_auth_token(
-					req_data['registration_number'].replace('/', '_')
+					req_data['registration_number'].replace('/', '_').lower()
 				)
 
 				if auth_token:
@@ -329,10 +330,17 @@ class Login(Resource):
 							# max_age=648000,
 							httponly=True
 						)
+						response.headers.set(
+							'x-access-token',
+							auth_token.decode(),
+						)
 						return response
 
+					result = UserSchema().dump(user).data
+					result['token'] = auth_token.decode()
+
 					return response.success(
-						data=UserSchema().dump(user).data,
+						data=result,
 						message='log in successful'
 					)
 			

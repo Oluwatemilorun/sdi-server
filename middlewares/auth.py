@@ -18,15 +18,15 @@ def check_auth(fn):
 	def check_auth_decorator(*args, **kwargs):
 
 		# check if authentication token exist
-		if 'sdi_token' in request.cookies:
-			auth_token = request.cookies.get('sdi_token')
+		if 'sdi_token' in request.cookies or 'x-access-token' in request.headers:
+			auth_token = request.cookies.get('sdi_token') if request.cookies.get('sdi_token') else request.headers.get('x-access-token')
 
 			# validate token
 			try:
 				payload = jwt.decode(auth_token, SECRET_KEY)
 				payload = payload['sub']
 				user = User.query.filter_by(
-					registration_number=payload['registration_number'].replace('/', '_')
+					registration_number=payload['registration_number'].replace('/', '_').lower()
 				).first()
 
 				# check if user exist
