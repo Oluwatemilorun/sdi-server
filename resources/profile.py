@@ -13,7 +13,6 @@ from middlewares.roles import validate_roles
 from app import bcrypt
 from utils import response
 
-
 class Profile(Resource):
 	"""
 	Current authenticated user `g.user` profile resource.\n
@@ -90,7 +89,12 @@ class LoadAssignments(Resource):
 		).first()
 
 		if user_type == 'student':
-			assignments = Assignment.query.filter_by(level=g.user['level'], is_active=True)
+			# use this when you need to join `Relationships`
+			assignments = db.session.query(Assignment).join(User).filter(
+				Assignment.level == g.user['level'],
+				Assignment.is_active == True
+			).all()
+
 			assignments = AssignmentSchema(many=True).dump(assignments).data
 			co_assignments = user.co_assignments
 			
@@ -120,16 +124,29 @@ class LoadSingleAssignment(Resource):
 
 	@check_auth
 	def get(self, ass_id):
-		assignment = Assignment.query.filter_by(id=ass_id).first()
-
+		assignment = db.session.query(Assignment).join(User).filter(
+			Assignment.id == ass_id,
+			Assignment.is_active == True
+		).first()
+		
 		if not assignment:
 			return response.error(
 				message='Assignment not found',
 				status=404
 			)
 
-		result = AssignmentSchema().dump(assignment).data
+		if g.user['user_type'] == 'student':
+			if assignment['level'] == g.user['level'] or assignment['id'] in g.user['co_assignments']:
+				pass
 
+			else:
+				return response.error(
+					message='This assignment is not assigned to you.',
+					status=404
+				)
+		
+		result = AssignmentSchema().dump(assignment).data
+		
 		return response.success(
 			data=result,
 			message='Assignment fetched'
