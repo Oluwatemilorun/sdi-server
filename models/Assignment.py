@@ -33,6 +33,8 @@ class Assignment(db.Model):
 	db_username = db.Column(db.String(50))
 	db_password = db.Column(db.String(255))
 
+	layers = db.relationship('Layer', backref=db.backref('assignment', lazy='joined'), lazy='select')
+
 	user_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
 
 	date_start = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp(), nullable=False)
