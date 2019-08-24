@@ -16,7 +16,7 @@ class Project(db.Model):
 	description = db.Column(db.String(220))
 	key = db.Column(db.String(8))
 
-	layers = db.relationship('Layer', backref=db.backref('assignment', lazy='joined'), lazy='select')
+	layers = db.relationship('Layer', backref=db.backref('project', lazy='joined'), lazy='select')
 	
 	user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False) # reference the owner (user field) of this project
 
