@@ -3,7 +3,7 @@
 # import psycopg2
 import datetime
 import jwt
-from marshmallow import Schema, fields, pre_load, validate
+from marshmallow import Schema, fields, validate
 from flask_marshmallow import Marshmallow
 
 from sqlalchemy.dialects.postgresql import ARRAY, BOOLEAN

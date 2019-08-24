@@ -2,12 +2,12 @@
 
 # import psycopg2
 import datetime
-from marshmallow import Schema, fields, pre_load, validate
+from marshmallow import Schema, fields, validate
 from flask_marshmallow import Marshmallow
 
-from sqlalchemy.dialects.postgresql import ARRAY, TIMESTAMP, UUID
+from sqlalchemy.dialects.postgresql import ARRAY, TIMESTAMP
 from sqlalchemy import create_engine
-from sqlalchemy_utils import database_exists, create_database
+from sqlalchemy_utils import database_exists
 
 from .db import db
 import config

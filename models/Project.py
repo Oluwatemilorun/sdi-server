@@ -1,7 +1,7 @@
 # database model for all users
 
 # import psycopg2
-from marshmallow import Schema, fields, pre_load, validate
+from marshmallow import Schema, fields, validate
 from flask_marshmallow import Marshmallow
 
 from .db import db
