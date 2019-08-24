@@ -1,12 +1,8 @@
 import config
 
 def allowed_file(filename):
-	if '.' in filename and filename.rsplit('.', 1)[1].lower() in config.ALLOWED_EXTENSIONS:
-		file_extn = filename.rsplit('.', 1)[1].lower()
-		allowed = True
+	file_extn = filename.rsplit('.', 1)[1].lower()
 
-	else:
-		file_extn: None
-		allowed = False
-
-	return {"extension": file_extn, "allowed": allowed}
+	allowed = True if file_extn in config.ALLOWED_EXTENSIONS else False
+	
+	return file_extn, allowed
