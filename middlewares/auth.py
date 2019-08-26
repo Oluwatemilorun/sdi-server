@@ -33,7 +33,7 @@ def check_auth(fn):
 				if not user:
 					return response.error(
 						message='Validation error. User not found',
-						status=404
+						status=401
 					)
 
 				# make user available down pipline
