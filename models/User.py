@@ -7,9 +7,10 @@ from marshmallow import Schema, fields, validate
 from flask_marshmallow import Marshmallow
 
 from sqlalchemy.dialects.postgresql import ARRAY, BOOLEAN
+from sqlalchemy import create_engine
 
 from app import bcrypt
-from config import SECRET_KEY
+from config import SECRET_KEY, ENGINE_DATABASE_URI
 from .db import db
 
 ma = Marshmallow()
@@ -35,7 +36,7 @@ class User(db.Model):
 
 	projects = db.relationship('Project', backref=db.backref('users', lazy='joined')) # reference the projects created by user
 	assignments = db.relationship('Assignment', backref=db.backref('users', lazy='joined'), lazy='select') # reference the assignments created by user
-	submissions = db.relationship('Submission', backref=db.backref('users', lazy='joined'), lazy='select') # reference the assignments created by user
+	submissions = db.relationship('Submission', lazy='select') # reference the assignments created by user
 
 	is_active = db.Column(db.Boolean, default=True, nullable=False)
 	user_type = db.Column(db.String(20), server_default='student', nullable=False) # student | lecturer | supervisor | technician
@@ -80,6 +81,8 @@ class User(db.Model):
 		self.co_assignments = []
 		self.password = bcrypt.generate_password_hash(password, 10).decode()
 
+		self.create_db_entry(registration_number, user_type, last_name)
+
 	def __repr__(self):
 		return "user infomation for {}".format(self.registration_number)
 
@@ -91,6 +94,7 @@ class User(db.Model):
 		"""
 		return bcrypt.check_password_hash(self.password, password)
 
+	
 	def encode_auth_token(self, user_reg):
 		"""
 		Generates the Auth Token
@@ -112,7 +116,26 @@ class User(db.Model):
 
 		except Exception as e:
 			return e
+	
 
+	def create_db_entry (self, registration_number, user_type, last_name):
+		"""
+		Create the database user and grant neccessary priviledges
+		"""
+		with create_engine(
+			'%s/rsg_sdi' % (ENGINE_DATABASE_URI),
+			isolation_level='AUTOCOMMIT'
+		).connect() as conn:
+			if user_type == 'student':
+				conn.execute("CREATE USER %s WITH ENCRYPTED PASSWORD '%s'" % (registration_number.replace('/', '_').lower(), last_name.upper()))
+			
+			else:
+				conn.execute("CREATE USER %s WITH CREATEDB ENCRYPTED PASSWORD '%s'" % (registration_number.replace('/', '_').lower(), last_name.upper()))
+				conn.execute("GRANT CONNECT ON DATABASE rsg_sdi TO %s;" % (registration_number.replace('/', '_').lower()))
+
+			conn.close()
+	
+	
 	@staticmethod
 	def decode_auth_token(auth_token):
 		"""
