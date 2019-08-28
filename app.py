@@ -20,7 +20,7 @@ api = Api(api_bp)
 
 from resources.users import AllUsers, SingleUser, ResetUserPassword, AddUserAssignment, Login
 from resources.profile import Profile, LoadAssignments, LoadSingleAssignment
-from resources.assignments import Assignments
+from resources.assignments import Assignments, SingleAssignment, AddAssignmentData, SaveAssignmentData
 from resources.project import AllProject
 
 # setup the Api resource routing here
@@ -36,5 +36,8 @@ api.add_resource(LoadAssignments, '/profile/assignments')
 api.add_resource(LoadSingleAssignment, '/profile/assignments/<ass_id>')
 
 api.add_resource(Assignments, '/assignments')
+api.add_resource(SingleAssignment, '/assignments/<ass_id>')
+api.add_resource(AddAssignmentData, '/assignments/<ass_id>/add-data')
+api.add_resource(SaveAssignmentData, '/assignments/<ass_id>/save-data')
 
 api.add_resource(AllProject, '/projects')

@@ -63,6 +63,7 @@ class Assignment(db.Model):
 		db_password,
 		user_id,
 		supervisors,
+		date_end
 		# participant
 	):
 		self.name = name.lower()
@@ -74,22 +75,25 @@ class Assignment(db.Model):
 		self.has_ended = False
 		self.is_active = True
 		self.supervisors = supervisors
+		self.date_end = date_end
 		# self.participant = participant
 
 		self.db_username = db_username
 		self.db_password = db_password
 
-		create_db = self.create_data_db(db_name)
-		if not create_db:
-			return None
+		self.create_data_db(db_name, db_username, db_password)
+		# create_db = self.create_data_db(db_name, db_username, db_password)
+		# if not create_db:
+		# 	return None
 
-		self.db_name = create_db
+		# self.db_name = create_db
 
 	def __repr__(self) :
 		return "Assignment infomation for %s" % (self.name)
 
-	# create the table that hold the data metadata for this assignment
-	def create_data_db(self, user):
+	# create the database that hold the data/layers for this assignment
+	# add postgis extension to created database
+	def create_data_db(self, placeholder, username, password):
 		current_day = "%s%s%s" % (
 			datetime.datetime.now().strftime('%d'),
 			datetime.datetime.now().strftime('%m'),
@@ -97,42 +101,33 @@ class Assignment(db.Model):
 		)
 
 		db_name = "ass_%s_%s_%s" % (
-			user,
+			placeholder,
 			current_day,
 			self.current_db_index
 		)
-		db_user = self.db_username
-		db_pass = self.db_password.lower()
 
-		if not database_exists('%s/%s' % (config.ENGINE_DATABASE_URI, db_name)):
-			with create_engine(
-				'%s/rsg_sdi' % (config.ENGINE_DATABASE_URI),
+		if not database_exists('postgresql://%s@localhost/%s' % (username, db_name)):
+			with create_engine('postgresql://%s@localhost/rsg_sdi' % (username),
 				isolation_level='AUTOCOMMIT'
 			).connect() as conn:
 				conn.execute("CREATE DATABASE %s;" % (db_name))
-
-				try:
-					conn.execute("CREATE USER %s WITH ENCRYPTED PASSWORD '%s';" % (db_user, db_pass))
-					conn.execute("GRANT ALL PRIVILEGES ON DATABASE %s TO %s;" % (db_name, db_user))
-					
-				except Exception as e:
-					print(e)
-					try:
-						conn.execute("GRANT ALL PRIVILEGES ON DATABASE %s TO %s;" % (db_name, db_user))
-
-					except Exception as e:
-						print(e)
-					
-					# return None
-				
-				self.db_name = db_name
 				conn.close()
-				return db_name
+			
+			# TODO: find a better way to this. This is expensive
+			# Must be superuser to create this extension.
+			with create_engine('postgresql://%s@localhost/%s' % (config.DATABASE_USER, db_name),
+				isolation_level='AUTOCOMMIT'
+			).connect() as conn:
+				conn.execute("CREATE EXTENSION IF NOT EXISTS postgis;")
+				conn.close()
+
+			self.db_name = db_name
+			# return db_name
 
 		else:
 			print(db_name, ' exist. Increasing index')
 			self.current_db_index = self.current_db_index + 1
-			self.create_data_db(user)
+			self.create_data_db(placeholder, username, password)
 
 		
 class AssignmentSchema(ma.Schema):

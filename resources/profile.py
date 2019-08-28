@@ -6,6 +6,7 @@ from flask_restful import Resource
 from models.db import db
 from models.User import User, UserSchema
 from models.Assignment import Assignment, AssignmentSchema
+from models.Layer import Layer, LayerSchema
 
 from middlewares.auth import check_auth
 from middlewares.roles import validate_roles
@@ -146,6 +147,7 @@ class LoadSingleAssignment(Resource):
 				)
 		
 		result = AssignmentSchema().dump(assignment).data
+		result['layers'] = LayerSchema(many=True).dump(assignment.layers).data
 		
 		return response.success(
 			data=result,
